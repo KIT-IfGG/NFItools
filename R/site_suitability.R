@@ -32,8 +32,6 @@ calculate_TV <-  function(dat, ths){
 }
 
 
-
-
 happy_tree_index <- function(sdm, growth, ths_sdm=c(0.25, 0.5, 0.75), dat_sdm, dat_growth, prob_growth=seq(0,1, len=10), write=FALSE){
   if(class(sdm) == "RasterLayer") { 
     
