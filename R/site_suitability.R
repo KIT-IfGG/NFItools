@@ -50,6 +50,7 @@ happy_tree_index <- function(sdm, growth, ths_sdm=c(0.25, 0.5, 0.75), dat_sdm, d
     
     
     hti <- (sdm + growth)/2   ### Sum
+    hti <- sqrt(sdm^2 + growth^2)/sgrt(2)  ### radius of a "circle" around zeri
     ### Auf max = 1 normieren
     res <- stack(sdm, growth, hti)
     names(res) <- c("sdm", "growth", "happy_tree_index")    
@@ -118,7 +119,7 @@ priority_regions_pythagoras <- function(sdm, growth, ths_sdm=c(0.25, 0.5, 0.75),
     growth[] <- ints / max(ints, na.rm=T)
     growth_pred[] <- findInterval(growth[], brks) / max(ints, na.rm=T) ### Check!
     
-    sign <- (sdm-sdm_pred) < 0 | (growth-growth_pred) < 0
+    sign <- (sdm-sdm_pred) < 0 | (growth-growth_pred) < 0 
     sign[!is.na(sign[])] <- ifelse(na.omit(sign[])==1, -1, 1)
     
     distance <- (sqrt((sdm-sdm_pred)^2 + (growth-growth_pred)^2) /sqrt(2)) * sign ### Pythagoras distance, but standardized to max=1
