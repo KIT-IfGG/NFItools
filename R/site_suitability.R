@@ -33,6 +33,13 @@ calculate_TV <-  function(dat, ths){
 
 
 happy_tree_index <- function(sdm, growth, ths_sdm=c(0.25, 0.5, 0.75), dat_sdm, dat_growth, prob_growth=seq(0,1, len=10), write=FALSE){
+  
+  agg_func <- function(sdm, growth) {
+    ### local function to combine growth and sdm information
+    ### Old: sqrt(sdm^2 + growth^2)/sqrt(2)  
+    (sdm + growth)/2 
+  }
+  
   if(class(sdm) == "RasterLayer") { 
     
     ### SDM
@@ -47,10 +54,9 @@ happy_tree_index <- function(sdm, growth, ths_sdm=c(0.25, 0.5, 0.75), dat_sdm, d
     ints <- findInterval(growth[], brks)
     
     growth[] <- ints / max(ints, na.rm=T) 
-    
-    
-    hti <- (sdm + growth)/2   ### Sum
-    hti <- sqrt(sdm^2 + growth^2)/sgrt(2)  ### radius of a "circle" around zeri
+  
+    hti <- agg_func(sdm, growth)  
+
     ### Auf max = 1 normieren
     res <- stack(sdm, growth, hti)
     names(res) <- c("sdm", "growth", "happy_tree_index")    
@@ -75,9 +81,8 @@ happy_tree_index <- function(sdm, growth, ths_sdm=c(0.25, 0.5, 0.75), dat_sdm, d
     growth[] <- ints / max(ints, na.rm=T) 
     
     
-    ###hti <- (sdm + growth)/2   ### Sum
+    hti <- agg_func(sdm, growth)   ### Sum index
     
-    hti <- sqrt(sdm^2 + growth^2)/sgrt(2)  ### radius of a "circle" around zeri
     
     ### Auf max = 1 normieren
     res <- list(sdm, growth, hti)
