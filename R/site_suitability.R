@@ -50,7 +50,7 @@ happy_tree_index <- function(sdm, growth, ths_sdm=c(0.25, 0.5, 0.75), dat_sdm, d
     
     
     hti <- (sdm + growth)/2   ### Sum
-    hti <- sqrt(sdm^2 + growth^2)/sgrt(2)  ### radius of a "circle" around zeri
+    hti <- sqrt(sdm^2 + growth^2)/sqrt(2)  ### radius of a "circle" around zeri
     ### Auf max = 1 normieren
     res <- stack(sdm, growth, hti)
     names(res) <- c("sdm", "growth", "happy_tree_index")    
@@ -77,7 +77,7 @@ happy_tree_index <- function(sdm, growth, ths_sdm=c(0.25, 0.5, 0.75), dat_sdm, d
     
     ###hti <- (sdm + growth)/2   ### Sum
     
-    hti <- sqrt(sdm^2 + growth^2)/sgrt(2)  ### radius of a "circle" around zeri
+    hti <- sqrt(sdm^2 + growth^2)/sqrt(2)  ### radius of a "circle" around zeri
     
     ### Auf max = 1 normieren
     res <- list(sdm, growth, hti)
