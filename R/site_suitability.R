@@ -74,7 +74,10 @@ happy_tree_index <- function(sdm, growth, ths_sdm=c(0.25, 0.5, 0.75), dat_sdm, d
     growth[] <- ints / max(ints, na.rm=T) 
     
     
-    hti <- (sdm + growth)/2   ### Sum
+    ###hti <- (sdm + growth)/2   ### Sum
+    
+    hti <- sqrt(sdm^2 + growth^2)/sgrt(2)  ### radius of a "circle" around zeri
+    
     ### Auf max = 1 normieren
     res <- list(sdm, growth, hti)
     names(res) <- c("sdm", "growth", "happy_tree_index")
@@ -92,9 +95,68 @@ create_hti_rgb_raster <- function(hti, red=1, green=2, blue=3, nclasses=10, set_
 }
 
 
-priority_regions <- function(current_hti, future_hti){
+priority_regions_hti <- function(current_hti, future_hti){
   nlay <- nlayers(current)
   future_hti - current_hti 
+}
+
+priority_regions_pythagoras <- function(sdm, growth, ths_sdm=c(0.25, 0.5, 0.75), dat_sdm, dat_growth, prob_growth=seq(0,1, len=10), sdm_pred, growth_pred, write=FALSE){
+  if(class(sdm) == "RasterLayer") { 
+    
+    ### SDM
+    brks <- ths_sdm
+    ints <- findInterval(sdm[], brks)
+    sdm[] <- ints / max(ints, na.rm=T)
+    sdm_pred[] <- findInterval(sdm_pred[], brks) / max(ints, na.rm=T)   ### Check!
+    
+    ### GROWTH
+    brks <- quantile(na.omit(dat_growth), prob=prob_growth) 
+    if (brks[1] > 0) brks <- c(0, brks)
+    if (brks[length(brks)] < max(growth[], na.rm=T)) brks <- c(0, brks)
+    ints <- findInterval(growth[], brks)
+    
+    growth[] <- ints / max(ints, na.rm=T)
+    growth_pred[] <- findInterval(growth[], brks) / max(ints, na.rm=T) ### Check!
+    
+    sign <- (sdm-sdm_pred) < 0 | (growth-growth_pred) < 0
+    sign[!is.na(sign[])] <- ifelse(na.omit(sign[])==1, -1, 1)
+    
+    distance <- (sqrt((sdm-sdm_pred)^2 + (growth-growth_pred)^2) /sqrt(2)) * sign ### Pythagoras distance, but standardized to max=1
+    ### Auf max = 1 normieren
+    res <- stack(sdm-sdm_pred, growth-growth_pred, distance)
+    names(res) <- c("distance_sdm", "distance_growth", "phytagoras_distance")    
+  } else {
+    
+    sdm <- as.matrix(sdm)
+    growth <- as.matrix(growth)
+    
+    ### SDM
+    #brks <- sort(calculate_TV(dat_sdm, ths_sdm)  )  
+    #brks <- c(0, brks, 1)
+    brks <- ths_sdm
+    ints <- findInterval(sdm, brks)
+    sdm[] <- ints / max(ints, na.rm=T) 
+    sdm_pred[] <- findInterval(sdm_pred[], brks) / max(ints, na.rm=T)   
+    
+    ### GROWTH
+    brks <- quantile(na.omit(dat_growth), prob=prob_growth) 
+    if (brks[1] > 0) brks <- c(0, brks)
+    if (brks[length(brks)] < max(growth[], na.rm=T)) brks <- c(0, brks)
+    ints <- findInterval(growth[], brks)
+    
+    growth[] <- ints / max(ints, na.rm=T)
+    growth_pred[] <- findInterval(growth[], brks) / max(ints, na.rm=T) ### Check!
+    
+    sign <- (sdm-sdm_pred) < 0 | (growth-growth_pred) < 0
+    sign[!is.na(sign[])] <- ifelse(na.omit(sign[])==1, -1, 1)
+    distance <- (sqrt((sdm-sdm_pred)^2 + (growth-growth_pred)^2) / sqrt(2)) * sign ### Pythagoras distance, but standardized to max=1
+    
+    ### Auf max = 1 normieren
+    res <- list(sdm-sdm_pred, growth-growth_pred, distance)
+    names(res) <- c("distance_sdm", "distance_growth", "phytagoras_distance")  
+    
+  }
+  res  
 }
 
 
