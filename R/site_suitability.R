@@ -56,6 +56,9 @@ happy_tree_index <- function(sdm, growth, ths_sdm=c(0.25, 0.5, 0.75), dat_sdm, d
     growth[] <- ints / max(ints, na.rm=T) 
   
     hti <- agg_func(sdm, growth)  
+  
+    hti <- (sdm + growth)/2   ### Sum
+    hti <- sqrt(sdm^2 + growth^2)/sqrt(2)  ### radius of a "circle" around zeri
 
     ### Auf max = 1 normieren
     res <- stack(sdm, growth, hti)
@@ -83,6 +86,10 @@ happy_tree_index <- function(sdm, growth, ths_sdm=c(0.25, 0.5, 0.75), dat_sdm, d
     
     hti <- agg_func(sdm, growth)   ### Sum index
     
+<<<<<<< HEAD
+=======
+    hti <- sqrt(sdm^2 + growth^2)/sqrt(2)  ### radius of a "circle" around zeri
+>>>>>>> d3421c9829073ef01ed68388119a05ec40e29ce9
     
     ### Auf max = 1 normieren
     res <- list(sdm, growth, hti)
