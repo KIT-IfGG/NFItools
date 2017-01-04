@@ -32,7 +32,7 @@ calculate_TV <-  function(dat, ths){
 }
 
 
-happy_tree_index <- function(sdm, growth, ths_sdm=c(0.25, 0.5, 0.75), dat_sdm, dat_growth, prob_growth=seq(0,1, len=10), write=FALSE){
+happy_tree_index <- function(sdm, growth, ths_sdm=c(0.25, 0.5, 0.75), dat_growth, prob_growth=seq(0,1, len=10), write=FALSE){
   
   agg_func <- function(sdm, growth) {
     ### local function to combine growth and sdm information
@@ -100,68 +100,45 @@ create_hti_rgb_raster <- function(hti, red=1, green=2, blue=3, nclasses=10, set_
 }
 
 
-priority_regions_hti <- function(current_hti, future_hti){
+calculate_hti_change <- function(current_hti, future_hti){
   future_hti - current_hti 
 }
 
-priority_regions_pythagoras <- function(sdm, growth, ths_sdm=c(0.25, 0.5, 0.75), dat_sdm, dat_growth, prob_growth=seq(0,1, len=10), sdm_pred, growth_pred, write=FALSE){
-  if(class(sdm) == "RasterLayer") { 
-    
-    ### SDM
-    brks <- ths_sdm
-    ints <- findInterval(sdm[], brks)
-    sdm[] <- ints / max(ints, na.rm=T)
-    sdm_pred[] <- findInterval(sdm_pred[], brks) / max(ints, na.rm=T)   ### Check!
-    
-    ### GROWTH
-    brks <- quantile(na.omit(dat_growth), prob=prob_growth) 
-    if (brks[1] > 0) brks <- c(0, brks)
-    if (brks[length(brks)] < max(growth[], na.rm=T)) brks <- c(0, brks)
-    ints <- findInterval(growth[], brks)
-    
-    growth[] <- ints / max(ints, na.rm=T)
-    growth_pred[] <- findInterval(growth[], brks) / max(ints, na.rm=T) ### Check!
-    
-    sign <- (sdm-sdm_pred) < 0 | (growth-growth_pred) < 0 
-    sign[!is.na(sign[])] <- ifelse(na.omit(sign[])==1, -1, 1)
-    
-    distance <- (sqrt((sdm-sdm_pred)^2 + (growth-growth_pred)^2) /sqrt(2)) * sign ### Pythagoras distance, but standardized to max=1
-    ### Auf max = 1 normieren
-    res <- stack(sdm-sdm_pred, growth-growth_pred, distance)
-    names(res) <- c("distance_sdm", "distance_growth", "phytagoras_distance")    
-  } else {
-    
-    sdm <- as.matrix(sdm)
-    growth <- as.matrix(growth)
-    
-    ### SDM
-    #brks <- sort(calculate_TV(dat_sdm, ths_sdm)  )  
-    #brks <- c(0, brks, 1)
-    brks <- ths_sdm
-    ints <- findInterval(sdm, brks)
-    sdm[] <- ints / max(ints, na.rm=T) 
-    sdm_pred[] <- findInterval(sdm_pred[], brks) / max(ints, na.rm=T)   
-    
-    ### GROWTH
-    brks <- quantile(na.omit(dat_growth), prob=prob_growth) 
-    if (brks[1] > 0) brks <- c(0, brks)
-    if (brks[length(brks)] < max(growth[], na.rm=T)) brks <- c(0, brks)
-    ints <- findInterval(growth[], brks)
-    
-    growth[] <- ints / max(ints, na.rm=T)
-    growth_pred[] <- findInterval(growth[], brks) / max(ints, na.rm=T) ### Check!
-    
-    sign <- (sdm-sdm_pred) < 0 | (growth-growth_pred) < 0
-    sign[!is.na(sign[])] <- ifelse(na.omit(sign[])==1, -1, 1)
-    distance <- (sqrt((sdm-sdm_pred)^2 + (growth-growth_pred)^2) / sqrt(2)) * sign ### Pythagoras distance, but standardized to max=1
-    
-    ### Auf max = 1 normieren
-    res <- list(sdm-sdm_pred, growth-growth_pred, distance)
-    names(res) <- c("distance_sdm", "distance_growth", "phytagoras_distance")  
-    
-  }
-  res  
+
+
+create_basal_area_data <- function(growth_data, k=4){
+  badata <- aggregate(growth_data$dbh2012, by=list(SiteID=gdata$SiteID, species=gdata$species), NROW)
+  badata <- as.data.frame(badata)
+  colnames(badata) <- c(colnames(badata)[-length(names(badata))], "BA")
+  badata$BA <- badata$BA * k
+  m <- match(badata$SiteID, gdata$SiteID)
+  badata$BA_share <- badata$BA/gdata$SBA2012[m]
+  badata$GKrechts <- gdata$GKrechts[m]
+  badata$GKhoch <- gdata$GKhoch[m]
+  badata
 }
 
+
+create_species_priority_regions <- function(basal_area_data, species="Picea_abies", hti_change, resolution=7000, negative_only=FALSE){
+  ### Arguments
+  # basal_area_data: Outpout of function create_basal_area_data. Column "species", "BA_share", "GKrechts" , "GKrechts".
+  # resolotion: Resolution of output raster
+  if (require(raster)){
+    badata_species <-  badata[badata$species==species,]
+    badata_species <-  badata_species[badata_species$BA_share > quantile(badata_species$BA_share, prob=0.75, na.rm=T),]
+    
+    species_actual <- rasterize(badata_species[, c("GKrechts", "GKhoch")], hti_change, badata_species$GKrechts, fun=median)
+    
+    species_priority <- mask(hti_change, species_actual)
+    species_priority <- resample(species_priority, raster(ext=extent(species_priority), resolution=resolution))
+    
+    if(negative_only) species_priority[species_priority[]>=0] <- NA
+    
+    
+  } else {
+    print("Package raster not loaded. Please load or install and load.")
+  }  
+  species_priority
+}
 
 
