@@ -1,6 +1,6 @@
-\name{NFItools1-package}
-\alias{NFItools1-package}
-\alias{NFItools1}
+\name{NFItools-package}
+\alias{NFItools-package}
+\alias{NFItools}
 \docType{package}
 \title{
 What the package does (short line)
@@ -12,7 +12,7 @@ More about what it does (maybe more than one line)
 }
 \details{
 \tabular{ll}{
-Package: \tab NFItools1\cr
+Package: \tab NFItools\cr
 Type: \tab Package\cr
 Version: \tab 1.0\cr
 Date: \tab 2016-04-07\cr
