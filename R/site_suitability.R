@@ -101,7 +101,6 @@ create_hti_rgb_raster <- function(hti, red=1, green=2, blue=3, nclasses=10, set_
 
 
 priority_regions_hti <- function(current_hti, future_hti){
-  nlay <- nlayers(current)
   future_hti - current_hti 
 }
 
