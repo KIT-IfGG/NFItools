@@ -107,14 +107,14 @@ calculate_hti_change <- function(current_hti, future_hti){
 
 
 create_basal_area_data <- function(growth_data, k=4){
-  badata <- aggregate(growth_data$dbh2012, by=list(SiteID=gdata$SiteID, species=gdata$species), NROW)
+  badata <- aggregate(growth_data$dbh2012, by=list(SiteID=growth_data$SiteID, species=growth_data$species), NROW)
   badata <- as.data.frame(badata)
   colnames(badata) <- c(colnames(badata)[-length(names(badata))], "BA")
   badata$BA <- badata$BA * k
-  m <- match(badata$SiteID, gdata$SiteID)
-  badata$BA_share <- badata$BA/gdata$SBA2012[m]
-  badata$GKrechts <- gdata$GKrechts[m]
-  badata$GKhoch <- gdata$GKhoch[m]
+  m <- match(badata$SiteID, growth_data$SiteID)
+  badata$BA_share <- badata$BA/growth_data$SBA2012[m]
+  badata$GKrechts <- growth_data$GKrechts[m]
+  badata$GKhoch <- growth_data$GKhoch[m]
   badata
 }
 
