@@ -105,7 +105,6 @@ calculate_hti_change <- function(current_hti, future_hti){
 }
 
 
-
 create_basal_area_data <- function(growth_data, k=4){
   badata <- aggregate(growth_data$dbh2012, by=list(SiteID=growth_data$SiteID, species=growth_data$species), NROW)
   badata <- as.data.frame(badata)
@@ -124,7 +123,7 @@ create_species_priority_regions <- function(basal_area_data, species="Picea_abie
   # basal_area_data: Outpout of function create_basal_area_data. Column "species", "BA_share", "GKrechts" , "GKrechts".
   # resolotion: Resolution of output raster
   if (require(raster)){
-    badata_species <-  badata[badata$species==species,]
+    badata_species <-  basal_area_data[basal_area_data$species==species,]
     badata_species <-  badata_species[badata_species$BA_share > quantile(badata_species$BA_share, prob=0.75, na.rm=T),]
     
     species_actual <- rasterize(badata_species[, c("GKrechts", "GKhoch")], hti_change, badata_species$GKrechts, fun=median)
