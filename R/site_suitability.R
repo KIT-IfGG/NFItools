@@ -105,6 +105,7 @@ calculate_hti_change <- function(current_hti, future_hti){
 }
 
 
+
 create_basal_area_data <- function(growth_data, k=4){
   badata <- aggregate(growth_data$dbh2012, by=list(SiteID=growth_data$SiteID, species=growth_data$species), NROW)
   badata <- as.data.frame(badata)
