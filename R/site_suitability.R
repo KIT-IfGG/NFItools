@@ -49,8 +49,8 @@ happy_tree_index <- function(sdm, growth, ths_sdm=c(0.25, 0.5, 0.75), dat_growth
     
     ### GROWTH
     brks <- quantile(na.omit(dat_growth), prob=prob_growth) 
-    if (brks[1] > 0) brks <- c(0, brks)
-    if (brks[length(brks)] < max(growth[], na.rm=T)) brks <- c(0, brks)
+    brks <- c(0, brks)
+    brks <- c(brks, max(growth[], na.rm=T))
     ints <- findInterval(growth[], brks)
     
     growth[] <- ints / max(ints, na.rm=T) 
