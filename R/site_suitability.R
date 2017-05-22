@@ -141,4 +141,18 @@ create_species_priority_regions <- function(basal_area_data, species="Picea_abie
   species_priority
 }
 
+dominant_species <- function(dat, site_id="SiteID", dom_variable="ba_txt"){
+  ### use output from create_basal_area_data
+  ### Function not debugged yet!
+  res <- data.frame(ID=unique(dat[,site_id]), dom=NA)
+  for (i in 1:nrow(res)){
+    sub <- dat[dat[,site_id]==res$ID[i],]
+    res$dom[i] <- as.character(sub[which.max(sub$x), dom_variable])
+    if(i %in% seq(0, i, by=5000)) print(paste(i, " of " , nrow(res), " Time: " ,Sys.time(), sep=""))
+  }
 
+  #m <- match(res$ID, dat[,site_id])
+  #dat[m, !colnames(dat) %in% colnames(res)]
+  res
+  
+}
