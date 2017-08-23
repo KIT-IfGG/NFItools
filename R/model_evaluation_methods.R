@@ -22,6 +22,7 @@ plot_2d_response <- function(gbm_model, xlevels, ylevels, ncolors=10, color_pale
   axis(2, at=1:ny, labels=(ylevels))
   mtext(main_txt, 3, 1)
   box()
+  list(breaks=ints, colors=color_palette(ncolors))
 }
 
 
