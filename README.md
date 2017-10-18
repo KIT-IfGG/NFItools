@@ -1,5 +1,5 @@
 # NFItools
-Functions to support handling and analysis of national forest inventory data
+R-package with functions to support handling and analysis of national forest inventory data
 
 ## Get NFI data
 
